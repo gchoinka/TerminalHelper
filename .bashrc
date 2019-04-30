@@ -15,7 +15,15 @@ export HISTIGNORE="pwd:ls:ls -l:cd"
 export PROMPT_COMMAND="history -a ~/.bash_history.global"
 export HH_CONFIG=hicolor,rawhistory
 # On C-r run the swap_history_reverse.sh script, 
-bind -x '"\C-r": "~/bin/swap_history_reverse.sh"'
+function hstrwsl {
+  export HISTFILE=~/.bash_history.global
+  offset=${READLINE_POINT}
+  READLINE_POINT=0
+  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1
+  READLINE_POINT=${#READLINE_LINE}
+  export HISTFILE=~/.bash_history
+}
+if [[ $- =~ .*i.* ]]; then bind -x '"\C-r": "hstrwsl"'; fi
 
 ## reedit a history substitution line if it failed
 shopt -s histreedit
